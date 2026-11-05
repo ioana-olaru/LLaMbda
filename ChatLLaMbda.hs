@@ -7,6 +7,7 @@ import qualified Lambek
 
 import Parser
 import PySupport
+import LExp
 
 -- "standardize" the capitalization of a word by making the first
 -- letter uppercase and the following letters lowercase.
@@ -22,10 +23,22 @@ repl elx phandle = do
   line <- getLine
   -- split it up into "standardized" words
   let ws = map stdize $ words line
+  
+  -- ORIGINAL CODE BEFORE SHOWING LAMBDA EXPRESSIONS
   -- test if the string of words is a grammatical sentence according to the lexicon
-  if Lambek.isGrammatical elx ws
-    then putStrLn "That is a well-formed sentence!"
-    else putStrLn "That is not a well-formed sentence"
+  -- if Lambek.isGrammatical elx ws
+  --   then putStrLn "That is a well-formed sentence!"
+  --   else putStrLn "That is not a well-formed sentence"
+  -- END OF ORIGINAL CODE 
+
+  -- NEW CODE TO DISPLAY LAMBDA EXPRESSIONS TO USER
+  let derivations = Lambek.sentenceDerivations elx ws  
+  if null derivations
+    then putStrLn "That is not a well-formed sentence" 
+    else do
+        putStrLn "I can derive your sentence as follows:"
+        mapM_ printLExp derivations
+    
   -- repeat
   repl elx phandle
       

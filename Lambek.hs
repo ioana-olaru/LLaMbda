@@ -4,6 +4,7 @@ module Lambek where
 
 import LTypes
 import LExp
+import PySupport
 
 -- DEC_RINV = decide right inversion: true if gamma -> B 
 dec_rinv :: [LTp] -> LTp -> Bool
@@ -88,4 +89,11 @@ entriesFor lex w =
     [(tp, sem)
      | (word, tp, sem) <- items lex,
        word == w]
+
+-- SENTENCEDERIVATIONS: returns all lambda expressions for one sentence 
+sentenceDerivations :: Lexicon sem -> [String] -> [LExp] 
+sentenceDerivations lex ws = concatMap makeDerivations (mapM (typesFor lex) ws) 
+        where 
+        makeDerivations gamma = der_rinv (zip names gamma) (stp lex) 
+        names = [w ++ "_" ++ show i | (w,i) <- zip ws [1..]]
 
