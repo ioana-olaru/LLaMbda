@@ -1,6 +1,8 @@
 import Data.Char
 import System.IO
 import Control.Exception
+import Data.List 
+import Control.Monad
 
 import LTypes
 import qualified Lambek
@@ -30,7 +32,9 @@ repl elx phandle = do
   -- get a line of input
   line <- getLine
   -- split it up into "standardized" words
-  let ws = map stdize $ words line
+  -- let ws = map stdize $ words line
+  -- FILTER OUT QUESTION MARKS FOR WHO VERSION
+  let ws = map (stdize . filter (/= '?')) $ words line
   
   -- ORIGINAL CODE BEFORE SHOWING LAMBDA EXPRESSIONS
   -- test if the string of words is a grammatical sentence according to the lexicon
@@ -51,16 +55,36 @@ repl elx phandle = do
   -- repl elx phandle
 
   -- NEW CODE FOR PART 3:
-  let names = [w ++ "_" ++ show i | (w,i) <- zip ws [1..]]
-  let interpretations = Lambek.sentenceMeanings elx ws 
-  case interpretations of 
-        [] -> putStrLn "That is not a well-formed sentence"
-        [interpretation] -> do 
-              result <- evaluateMeaning phandle names interpretation
-              putStrLn result 
-        _ -> do 
-              putStrLn "That sentence is ambiguous"
-              mapM_ (showInterpretation names) interpretations 
+  -- let names = [w ++ "_" ++ show i | (w,i) <- zip ws [1..]]
+  -- let interpretations = Lambek.sentenceMeanings elx ws 
+  -- case interpretations of 
+  --      [] -> putStrLn "That is not a well-formed sentence"
+  --      [interpretation] -> do 
+  --            result <- evaluateMeaning phandle names interpretation
+  --            putStrLn result 
+  --      _ -> do 
+  --            putStrLn "That sentence is ambiguous"
+  --            mapM_ (showInterpretation names) interpretations 
+  -- repl elx phandle 
+  -- where showInterpretation names interpretation = do 
+  --                let (expr,_) = interpretation 
+  --                result <- evaluateMeaning phandle names interpretation 
+  --                putStrLn ( "Sense [" ++ prettyLExp expr ++ "]: " ++ result)
+
+  -- UPDATED CODE FOR WHO QUESTION 
+  case ws of 
+    ("Who":rest) -> question elx phandle rest
+    _ -> do 
+          let names = [w ++ "_" ++ show i | (w,i) <- zip ws [1..]]
+          let interpretations = Lambek.sentenceMeanings elx ws
+          case interpretations of 
+                [] -> putStrLn "That is not a well-formed sentence"
+                [interpretation] -> do 
+                        result <- evaluateMeaning phandle names interpretation
+                        putStrLn result 
+                _ -> do 
+                        putStrLn "That sentence is ambiguous"
+                        mapM_ (showInterpretation names) interpretations 
   repl elx phandle 
   where showInterpretation names interpretation = do 
                   let (expr,_) = interpretation 
@@ -99,3 +123,20 @@ main = do
         Left err -> putStrLn ("Error loading file " ++ show err) >> getLex
         Right (Left err) -> putStrLn ("parse error at " ++ lname ++ ":" ++ show err) >> getLex
         Right (Right lex) -> return lex
+
+-- QUESTION: answers the question "Who ____?" with all corresponding names
+question :: Lexicon PythonCode -> PythonHandle -> [String] -> IO ()
+question lex phandle rest = do 
+      let candidates = nub [w | (w,Atm "np", _) <- items lex]
+      answers <- filterM checkName candidates
+      if null answers
+        then putStrLn "Nobody"
+        else putStrLn (intercalate ", " answers)
+
+      where
+        checkName name = do 
+            let ws = name : rest
+            let names = [w ++ "_" ++ show i | (w,i) <- zip ws [1..]]
+            let interpretations = Lambek.sentenceMeanings lex ws
+            results <- mapM (evaluateMeaning phandle names) interpretations
+            return ("True" `elem` results)
