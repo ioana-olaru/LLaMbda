@@ -1,0 +1,45 @@
+SENTENCE : s.
+
+Ioana : np = 'Ioana'.
+Nina : np = 'Nina'.
+Clarisse : np = 'Clarisse'.
+Mayad : np = 'Mayad'.
+Alice : np = 'Alice'.
+Marc : np = 'Marc'.
+Victor : np = 'Victor'.
+Joachim : np = 'Joachim'.
+Giuseppe : np = 'Giuseppe'.
+Alfred : np = 'Alfred'.
+Sienna : np = 'Sienna'.
+Nayl : np = 'Nayl'.
+
+Is : np \ (s / adj) = lambda x : lambda p : p(x).
+Is : np \ (s / n) = lambda x : lambda p : p(x).
+
+Someone  : s / (np \ s)         = lambda p : any (p(x) for x in people).
+Someone  : (s / np) \ s         = lambda p : any (p(x) for x in people).
+Every    : (s / (np \ s)) / n   = lambda q : lambda p : all (p(x) for x in people if q(x)).
+Every    : ((s / np) \ s) / n   = lambda q : lambda p : all (p(x) for x in people if q(x)).
+A        : (s / (np \ s)) / n   = lambda q : lambda p : any (p(x) and q(x) for x in people).
+A        : ((s / np) \ s) / n   = lambda q : lambda p : any (p(x) and q(x) for x in people).
+
+And : s \ (s / s) = lambda x : lambda y : x and y.
+And : adj \ (adj / adj) = lambda p : lambda q : lambda x : p(x) and q(x).
+
+On : adj / n = lambda p : p.
+Exchange : n = lambda x : x in on_exchange.
+Campus : n = lambda x : x in on_campus.
+Gone : adj = lambda x : x in gone.
+
+Girl : n = lambda x : x in girls.
+Boy : n = lambda x : x in boys.
+Bxtwentysix : n = lambda x : x in bxtwentysix.
+Bxtwentyseven : n = lambda x : x in bxtwentyseven.
+Bxtwentyeight : n = lambda x : x in bxtwentyeight.
+
+Physics : np = 'Physics'.
+Cs : np = 'CS'.
+Maths: np = 'Maths'.
+
+Likes : np \ (s / np) = lambda x : lambda y : (x,y) in likes.
+Hates : np \ (s / np) = lambda x : lambda y : (x,y) in hates.
