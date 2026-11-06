@@ -14,6 +14,13 @@ import LExp
 -- (This will make it easier to look up words in the lexicon.)
 stdize (c:cs) = toUpper c : map toLower cs
 
+-- EVALUATEMEANING: evaluates one interpretation in Python
+evaluateMeaning :: PythonHandle -> [String] -> (LExp, [PythonCode]) -> IO String
+evaluateMeaning phandle names (expr,meanings) = do 
+        let wordMeanings = zip names (map text meanings)
+        let pythonExpr = Lambek.toPython wordMeanings expr 
+        runPythonCode phandle (PCode ("print(" ++ PythonExpr ++ ", flush=True)"))
+
 -- read-eval-print-loop
 repl :: Lexicon PythonCode -> PythonHandle -> IO ()
 repl elx phandle = do
