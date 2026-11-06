@@ -1,0 +1,48 @@
+SENTENCE : s.
+
+Anna : np = 'Anna'.
+William : np = 'William'.
+George : np = 'George'.
+Chloe : np = 'Chloe'.
+Diane : np = 'Diane'.
+Lucie : np = 'Lucie'.
+Fred : np = 'Fred'.
+Marc : np = 'Marc'.
+Bill : np = 'Bill'.
+Tina : np = 'Tina'.
+
+Person : n = lambda x : x in person.
+Baby : n = lambda x : ages[x] == 'baby'.
+Child : n = lambda x : ages[x] == 'child'.
+Teenager : n = lambda x : ages[x] == 'teenager'.
+Adult : n = lambda x : ages[x] == 'adult'.
+
+Sleeps : np \ s = lambda x : x in sleep.
+Cries : np \ s = lambda x : x in cry.
+Works : np \ s = lambda x : x in work.
+Plays : np \ s = lambda x : x in play.
+Reads : np \ s = lambda x : x in read.
+Likes : np \ (s / np) = lambda x : lambda y : (x,y) in like.
+Hates : np \ (s / np) = lambda x : lambda y : (x,y) in hate.
+
+Is : np \ (s / adj) = lambda x : lambda p : p(x).
+Tired : adj = lambda x : x in tired.
+Tired : n / n = lambda p : lambda x : p(x) and x in tired.
+Loud : adj = lambda x : x in loud.
+Loud : n / n = lambda p : lambda x : p(x) and x in loud.
+Hungry : adj = lambda x : x in hungry.
+Hungry : n / n = lambda p : lambda x : p(x) and x in hungry.
+Old : adj = lambda x : x in old.
+Old : n / n = lambda p : lambda x : p(x) and x in old.
+Young : adj = lambda x : x in young.
+Young : n / n = lambda p : lambda x : p(x) and x in young.
+
+Someone  : s / (np \ s)         = lambda p : any (p(x) for x in people).
+Someone  : (s / np) \ s         = lambda p : any (p(x) for x in people).
+Every    : (s / (np \ s)) / n   = lambda q : lambda p : all (p(x) for x in people if q(x)).
+Every    : ((s / np) \ s) / n   = lambda q : lambda p : all (p(x) for x in people if q(x)).
+A        : (s / (np \ s)) / n   = lambda q : lambda p : any (p(x) and q(x) for x in people).
+A        : ((s / np) \ s) / n   = lambda q : lambda p : any (p(x) and q(x) for x in people).
+
+And : s \ (s / s) = lambda x : lambda y : x and y.
+And : adj \ (adj / adj) = lambda p : lambda q : lambda x : p(x) and q(x).

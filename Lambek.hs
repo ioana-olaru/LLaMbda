@@ -95,7 +95,7 @@ sentenceDerivations lex ws = concatMap makeDerivations (mapM (typesFor lex) ws)
 toPython :: [(Var, String)] -> LExp -> String
 toPython wordMeanings (V x) = 
     case lookup x wordMeanings of 
-        Just meaning -> meaning
+        Just meaning -> "(" ++ meaning ++ ")"
         Nothing -> x
 toPython wordMeanings (A e1 e2) = "(" ++ toPython wordMeanings e1 ++ ")(" ++ toPython wordMeanings e2 ++ ")"
 toPython wordMeanings (L x e) = "(lambda " ++ x ++ ": " ++ toPython wordMeanings e ++ ")"
