@@ -19,7 +19,8 @@ evaluateMeaning :: PythonHandle -> [String] -> (LExp, [PythonCode]) -> IO String
 evaluateMeaning phandle names (expr,meanings) = do 
         let wordMeanings = zip names (map text meanings)
         let pythonExpr = Lambek.toPython wordMeanings expr 
-        runPythonCode phandle (PCode ("print(" ++ PythonExpr ++ ", flush=True)"))
+        runPythonCode phandle (PCode ("print(" ++ pythonExpr ++ ", flush=True)"))
+
 
 -- read-eval-print-loop
 repl :: Lexicon PythonCode -> PythonHandle -> IO ()
@@ -39,15 +40,33 @@ repl elx phandle = do
   -- END OF ORIGINAL CODE 
 
   -- NEW CODE TO DISPLAY LAMBDA EXPRESSIONS TO USER
-  let derivations = Lambek.sentenceDerivations elx ws  
-  if null derivations
-    then putStrLn "That is not a well-formed sentence" 
-    else do
-        putStrLn "I can derive your sentence as follows:"
-        mapM_ printLExp derivations
+  -- let derivations = Lambek.sentenceDerivations elx ws  
+  -- if null derivations
+  --  then putStrLn "That is not a well-formed sentence" 
+  --  else do
+  --      putStrLn "I can derive your sentence as follows:"
+  --      mapM_ printLExp derivations
     
   -- repeat
-  repl elx phandle
+  -- repl elx phandle
+
+  -- NEW CODE FOR PART 3:
+  let names = [w ++ "_" ++ show i | (w,i) <- zip ws [1..]]
+  let interpretations = Lambek.sentenceMeanings elx ws 
+  case interpretations of 
+        [] -> putStrLn "That is not a well-formed sentence"
+        [interpretation] -> do 
+              result <- evaluateMeaning phandle names interpretation
+              putStrLn result 
+        _ -> do 
+              putStrLn "That sentence is ambiguous"
+              mapM_ (showInterpretation names) interpretations 
+  repl elx phandle 
+  where showInterpretation names interpretation = do 
+                  let (expr,_) = interpretation 
+                  result <- evaluateMeaning phandle names interpretation 
+                  putStrLn ( "Sense [" ++ prettyLExp expr ++ "]: " ++ result)
+
       
 main = do
   -- send console output immediately to the user
